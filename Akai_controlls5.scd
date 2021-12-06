@@ -1,10 +1,6 @@
 MIDIClient.init;
 MIDIIn.connectAll;
 
-MIDIIn.disconnectAll
-MIDIIn.connect(1,1);
-MIDIIn.connect(2,2);
-
 (
 var akai, joy, pad1, pad2, pad3, pad4, pad5, pad6, pad7, pad8, k1,k2,k3,k4,k5,k6,k7,k8, box1, box2, box3, box4, box5, box6, box7, box8, box9, box10, box11, box12, box13, box14, box15, box16;
 var pad1t, pad2t, pad3t, pad4t, pad5t, pad6t, pad7t, pad8t, k1t, k2t, k3t, k4t, k5t, k6t, k7t, k8t;
