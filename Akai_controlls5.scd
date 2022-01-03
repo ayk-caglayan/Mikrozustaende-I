@@ -1,3 +1,4 @@
+// GUI and midi utility functioins for Akai MPK mini mk3 controller
 MIDIClient.init;
 MIDIIn.connectAll;
 
