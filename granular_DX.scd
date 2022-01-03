@@ -1,3 +1,4 @@
+// adapted from dkmayer/miSCellaneous_lib 'gran_1f' SynthDef
 (
 ~maxOverlap = 12;
 //a is audio bus dictionary
