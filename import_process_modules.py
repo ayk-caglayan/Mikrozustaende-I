@@ -1,4 +1,4 @@
-#import and writes 4-voice choral modules into numpy arrays
+# import and process chosen module according to given parameters and exports as .xml file 
 
 import matplotlib.pyplot as plt
 import random
