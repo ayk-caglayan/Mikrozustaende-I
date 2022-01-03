@@ -1,2 +1,3 @@
 # Mikrozustaende-I
-codes and notations that I've written for a concert (piano and live-electronics) project , it's very unorganised and too personal
+codes and notations that I've written for a concert (piano and live-electronics) project, which is supported by musikfonds.de
+
