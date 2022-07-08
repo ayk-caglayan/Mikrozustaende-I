@@ -1,5 +1,6 @@
 (
 //pulsates with an enveloped entropy// by default oscillates between -1 & +1
+
 SynthDef(\entropy_pulse, {arg out=1, env_len=1, val_freq=10, range=1, center_val=0;
 	var impulse, attack, release, env, noise;
 	// dur=freq.reciprocal;
