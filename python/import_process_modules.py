@@ -1,11 +1,28 @@
 #import and process chosen module according to given parameters and exports as .xml file
 
+import os
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import random
 
 from musx import rescale, interp
 from scamp import *
 from scamp_extensions.pitch import *
+
+DEFAULT_BACH_MODULES = Path(__file__).resolve().parent.parent.parent / "bach_progressions" / "bach_modules.txt"
+BACH_MODULES_PATH = Path(os.environ.get("BACH_MODULES_PATH", DEFAULT_BACH_MODULES))
+OUTLET_DIR = Path(__file__).resolve().parent / "outlet"
+
+
+def read_bach_module_lines(path=None):
+    path = Path(path) if path else BACH_MODULES_PATH
+    with open(path, "r") as f:
+        lines = f.readlines()
+    if lines and lines[0].startswith("module_nr"):
+        lines = lines[1:]
+    return lines
+
 
 def p_soprano_part():
     for s_f, s_d in zip(soprano_freq, soprano_dur_env):
@@ -253,9 +270,8 @@ def get_module_w_len_key_mode(l, k, m):
             return get_module_w_len_key_mode(alternate,k,m)
 
 
-def import_process_beats_aligned(module_file_path, module_nr=230, bottom=65, ceiling=1056, quantize_step_size=0.25, a_scaler=1, d_scaler=1, r_scaler=1): #file=open(module_file_path, 'r')
-    file=open(module_file_path, 'r')
-    module=file.readlines()
+def import_process_beats_aligned(module_file_path=None, module_nr=230, bottom=65, ceiling=1056, quantize_step_size=0.25, a_scaler=1, d_scaler=1, r_scaler=1):
+    module = read_bach_module_lines(module_file_path)
     global soprano_freq
     global alto_freq
     global tenor_freq
@@ -375,7 +391,7 @@ def module_process(in_dure=10, key=0, mode=3, floor=65, ceiling=1056, al_scaler=
         get_wanted_module_num=get_module_w_len_key_mode(in_dure, key, mode)
         module_num_to_be_used=int(random.choice(get_wanted_module_num))
         print('module_num in use: ', module_num_to_be_used)
-        import_process_beats_aligned("all_modules.txt", module_num_to_be_used,floor, ceiling, 0.25, al_scaler, dl_scaler, rl_scaler)
+        import_process_beats_aligned(BACH_MODULES_PATH, module_num_to_be_used,floor, ceiling, 0.25, al_scaler, dl_scaler, rl_scaler)
         time_sig=sechszehntelORachtelORviertel(reframe(bass_dur_env,3))
         time_sig_list.append(time_sig)
         print(time_sig)
@@ -391,7 +407,7 @@ def module_process(in_dure=10, key=0, mode=3, floor=65, ceiling=1056, al_scaler=
         get_wanted_module_num=get_module_w_len_key_mode(in_dure, key, mode)
         module_num_to_be_used=int(random.choice(get_wanted_module_num))
         print('module_num in use: ', module_num_to_be_used)
-        import_process_beats_aligned("all_modules.txt", module_num_to_be_used,floor, ceiling, 0.25, al_scaler, dl_scaler, rl_scaler)
+        import_process_beats_aligned(BACH_MODULES_PATH, module_num_to_be_used,floor, ceiling, 0.25, al_scaler, dl_scaler, rl_scaler)
         #numerator=str(int(quantize(sum(soprano_dur_env), 0.25)/0.25))
         #denominator=str(16)
         #time_sig=numerator+'/'+denominator
@@ -406,7 +422,8 @@ def module_process(in_dure=10, key=0, mode=3, floor=65, ceiling=1056, al_scaler=
         #time.sleep(sum(soprano_dur_env))
     s.wait_for_children_to_finish()
     performance = s.stop_transcribing()
-    performance.to_score(composer="Ayk", title="micro-state", time_signature=concatenate(time_sig_list), simplicity_preference=2).export_music_xml("outlet/fragment_"+title+".xml")
+    OUTLET_DIR.mkdir(parents=True, exist_ok=True)
+    performance.to_score(composer="Ayk", title="micro-state", time_signature=concatenate(time_sig_list), simplicity_preference=2).export_music_xml(str(OUTLET_DIR / ("fragment_"+title+".xml")))
 
 
 def module_process_fix_num(module_num=1, floor=65, ceiling=1056, al_scaler=1, dl_scaler=1, rl_scaler=1, title='Oct'):
@@ -415,7 +432,7 @@ def module_process_fix_num(module_num=1, floor=65, ceiling=1056, al_scaler=1, dl
 
     s.start_transcribing()
 
-    import_process_beats_aligned("all_modules.txt", module_num, floor, ceiling, 0.25, al_scaler, dl_scaler, rl_scaler)
+    import_process_beats_aligned(BACH_MODULES_PATH, module_num, floor, ceiling, 0.25, al_scaler, dl_scaler, rl_scaler)
     time_sig=sechszehntelORachtelORviertel(reframe(bass_dur_env,3))
     time_sig_list.append(time_sig)
     print(time_sig)
@@ -426,7 +443,8 @@ def module_process_fix_num(module_num=1, floor=65, ceiling=1056, al_scaler=1, dl
     wait(sum(soprano_dur_env))
     s.wait_for_children_to_finish()
     performance = s.stop_transcribing()
-    performance.to_score(composer="Ayk", title="micro-state", time_signature=concatenate(time_sig_list), simplicity_preference=2).export_music_xml("fragmented"+title+".xml")
+    OUTLET_DIR.mkdir(parents=True, exist_ok=True)
+    performance.to_score(composer="Ayk", title="micro-state", time_signature=concatenate(time_sig_list), simplicity_preference=2).export_music_xml(str(OUTLET_DIR / ("fragmented"+title+".xml")))
 
 ### check each module
 ### classify and write them to dictionaries according their key and mode.
@@ -435,22 +453,7 @@ def module_process_fix_num(module_num=1, floor=65, ceiling=1056, al_scaler=1, dl
 major_key_dic={0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[], 11:[]}
 minor_key_dic={0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[], 11:[]}
 
-#def importt_select_process(module_file_path): #mode_code: 3=minor, 4=major
-file=open("all_modules.txt", 'r')
-module_lines=file.readlines()
-first_module_num=0
-last_module_num=module_lines[len(module_lines)-1].split('\t')[0]
-
-previous=-1
-current=0
-out=[]
-
-major_key_dic={0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[], 11:[]}
-minor_key_dic={0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[], 11:[]}
-
-#def importt_select_process(module_file_path): #mode_code: 3=minor, 4=major
-file=open("all_modules.txt", 'r')
-module_lines=file.readlines()
+module_lines = read_bach_module_lines()
 first_module_num=0
 last_module_num=module_lines[len(module_lines)-1].split('\t')[0]
 #print(last_module_num)
@@ -481,7 +484,7 @@ for mod_line in module_lines:
         previous=current
 
 
-""" before running make sure you have got the "all_modules.txt" file in the same directory """
+""" Clone bach_progressions alongside this repo, or set BACH_MODULES_PATH to bach_modules.txt """
 
 """
 s = Session()

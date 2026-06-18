@@ -1,0 +1,4 @@
+python/outlet/
+__pycache__/
+*.pyc
+.DS_Store

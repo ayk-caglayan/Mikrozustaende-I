@@ -46,8 +46,16 @@ SynthDef("rev", {arg in=0, out=0;
 
 
 )
-//read
-x=TabFileReader.readInterpret("/Users/aykutcaglayan/Library/Mobile Documents/com~apple~CloudDocs/Mikrozustände/bach_modules/all_modules.txt");
+// read bach_modules.txt (clone bach_progressions as sibling repo, or edit path below)
+(
+~bachModulesPath = (thisProcess.nowExecutingPath.dirname.dirname.dirname +/+ "../bach_progressions/bach_modules.txt").standardizePath;
+~bachModulesDataPath = Path.temp +/+ "bach_modules_data.txt";
+var raw = File.readAllString(~bachModulesPath);
+var lines = raw.split($\n).select(_.size > 0);
+if (lines[0].beginsWith("module_nr")) { lines = lines.drop(1) };
+File.use(~bachModulesDataPath, "w", { |f| lines.do { |l| f.write(l ++ "\n") } });
+x = TabFileReader.readInterpret(~bachModulesDataPath);
+)
 
 
 
