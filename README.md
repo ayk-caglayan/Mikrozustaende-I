@@ -6,16 +6,24 @@ Copyright © 2021 Aykut Çağlayan — [MIT License](LICENSE)
 
 ## Overview
 
-This repository is a performance and composition toolkit: SuperCollider scripts for live synthesis and control, a Pure Data patch for pitch tracking, and a Python pipeline that transforms Bach chorale harmonic modules into notated fragments (MusicXML).
+This repository holds the live-electronics code and score PDFs for *Mikrozustände*: SuperCollider scripts for synthesis and control, a Pure Data patch for pitch tracking, and a Python pipeline for rhythmic processing and MusicXML export.
 
-Bach module data is maintained separately in [**bach_progressions**](https://github.com/ayk-caglayan/bach_progressions) — a web application for searching chord progressions from Bach chorales ([findbachprogressions.aykutcaglayan.net](https://findbachprogressions.aykutcaglayan.net)). This project reads the same `bach_modules.txt` dataset for compositional and live-performance workflows.
+Especially [Section_III.pdf](Section_III.pdf) and [Section_IV.pdf](Section_IV.pdf) were composed using the modular harmonic material processed by these tools. Module data for the composition pipeline lives in [bach_progressions](https://github.com/ayk-caglayan/bach_progressions) if you want to run it yourself.
+
+## Notation
+
+| File | Note |
+|------|------|
+| [Section_I.pdf](Section_I.pdf), [Section_II.pdf](Section_II.pdf) | indicative notation for the performer |
+| [Section_III.pdf](Section_III.pdf), [Section_IV.pdf](Section_IV.pdf) | Composed with the modular material, exact rendering |
 
 ## Repository layout
 
 ```
 Mikrozustaende-I/
+├── Section_I.pdf … Section_IV.pdf
 ├── supercollider/
-│   ├── composition/     Bach module playback experiments
+│   ├── composition/     Composition / module playback
 │   ├── networking/      Multi-machine tempo OSC sync (sender/receiver)
 │   ├── granular/        Granular synthesis and live recording
 │   ├── synthesis/       Oscillators, filters, physical models
@@ -38,48 +46,6 @@ Mikrozustaende-I/
 | Python 3 | `import_process_modules.py` |
 | `matplotlib`, `musx`, `scamp`, `scamp_extensions` | Python composition pipeline |
 
-## Bach module data setup
-
-Clone [bach_progressions](https://github.com/ayk-caglayan/bach_progressions) alongside this repository:
-
-```bash
-cd ..
-git clone https://github.com/ayk-caglayan/bach_progressions.git
-```
-
-Expected layout:
-
-```
-parent/
-├── Mikrozustaende-I/
-└── bach_progressions/
-    └── bach_modules.txt
-```
-
-Alternatively, point scripts at any copy of the file:
-
-```bash
-export BACH_MODULES_PATH=/path/to/bach_progressions/bach_modules.txt
-```
-
-### `bach_modules.txt` schema
-
-Tab-separated values with a header row. Progression fragments were extracted from Bach chorales using [music21](https://web.mit.edu/music21/) (see the [bach_progressions README](https://github.com/ayk-caglayan/bach_progressions/blob/main/README.md)).
-
-| Column | Field |
-|--------|-------|
-| 1 | `module_nr` |
-| 2 | `part_code` — 1=Soprano, 2=Alto, 3=Tenor, 4=Bass |
-| 3 | `note_counter` |
-| 4 | `time_offset` (beats) |
-| 5 | `pitch_Hz` |
-| 6 | `noteLengthAsQuarter` |
-| 7 | `startingKeyPitchClass` (0–11) |
-| 8 | `startingMode` — 3=minor, 4=major |
-| 9 | `finalKeyPitchClass` |
-| 10 | `finalMode` |
-| 11 | `bwv_nr` — source chorale (e.g. `bwv269`) |
-
 ## Usage
 
 ### Composition (Python → MusicXML)
@@ -91,7 +57,9 @@ python import_process_modules.py
 
 Uncomment one of the example `Session` blocks at the bottom of `import_process_modules.py` to generate a fragment. Output is written to `python/outlet/`.
 
-The script classifies modules by key and mode on import, then selects and processes modules with rhythmic envelopes, quantization, and four-part SCAMP playback before exporting MusicXML.
+The script selects modular harmonic fragments, applies rhythmic envelopes and quantization, plays four-part SCAMP playback, and exports MusicXML. `supercollider/composition/Bach_slices_template8.scd` can read the same module data for SuperCollider playback.
+
+**Module data:** clone [bach_progressions](https://github.com/ayk-caglayan/bach_progressions) alongside this repo (`../bach_progressions/bach_modules.txt`), or set `BACH_MODULES_PATH`. See that repo's [README](https://github.com/ayk-caglayan/bach_progressions/blob/main/README.md) for file format details.
 
 ### Live electronics (SuperCollider + Pure Data)
 
@@ -111,10 +79,6 @@ supercollider/networking/ALPHA_sender.scd  ←OSC tempo→  ALPHA_receiver.scd
 1. Start Pure Data: open `puredata/sigmund.pd`
 2. Load pitch receiver: `supercollider/pitch/get_sigmund_2.scd`
 3. Load synthesis/control scripts as required from `supercollider/`
-
-### Bach module playback (SuperCollider)
-
-`supercollider/composition/Bach_slices_template8.scd` reads `bach_modules.txt` from a sibling `bach_progressions` clone. Edit `~bachModulesPath` at the top of the read block if your layout differs.
 
 ### Multi-machine performance sync
 
@@ -140,11 +104,6 @@ Across SuperCollider scripts, shared naming is used for patching:
 | `~machine_listening` | Target group for input/recording |
 
 Scripts assume a coordinated SC session with buses and groups set up before dependent blocks are evaluated.
-
-## Related projects
-
-- [**bach_progressions**](https://github.com/ayk-caglayan/bach_progressions) — search Bach chorale chord progressions; source of `bach_modules.txt`
-- [findbachprogressions.aykutcaglayan.net](https://findbachprogressions.aykutcaglayan.net) — web interface for progression search
 
 ## License
 
